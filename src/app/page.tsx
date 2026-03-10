@@ -305,8 +305,8 @@ export default function Dashboard() {
           </p>
           <div className="grid grid-cols-2 gap-6 sm:grid-cols-3">
             {[
-              { label: "Beleggsprosent HTI", value: `${current.beleggAarPct}%`, prev: prev ? `${prev.beleggAarPct}%` : undefined },
-              { label: "Gjennomsnittspris HTI", value: `${new Intl.NumberFormat("nb-NO").format(current.snittPrisAar)} kr`, prev: prev ? `${new Intl.NumberFormat("nb-NO").format(prev.snittPrisAar)} kr` : undefined },
+              { label: "Beleggsprosent", value: `${current.beleggAarPct}%`, prev: prev ? `${prev.beleggAarPct}%` : undefined },
+              { label: "Gjennomsnittspris", value: `${new Intl.NumberFormat("nb-NO").format(current.snittPrisAar)} kr`, prev: prev ? `${new Intl.NumberFormat("nb-NO").format(prev.snittPrisAar)} kr` : undefined },
               { label: "Ubesatte stillinger", value: String(current.ubesatte), prev: prev ? String(prev.ubesatte) : undefined },
             ].map(({ label, value, prev: p }) => (
               <div key={label}>
