@@ -38,7 +38,7 @@ function DeltaBadge({ curr, prev, suffix = "" }: { curr: number; prev: number; s
       }}
     >
       <Icon size={11} />
-      {Math.abs(pct).toFixed(1)}{suffix}
+      {Math.abs(pct).toFixed(1).replace(".", ",")}{suffix}
     </span>
   );
 }
@@ -268,7 +268,7 @@ export default function Dashboard() {
               </p>
               <div className="flex items-end justify-between mb-3">
                 <span className="text-3xl font-bold">{value}%</span>
-                {p !== undefined && <DeltaBadge curr={value} prev={p} suffix="pp" />}
+                {p !== undefined && <DeltaBadge curr={value} prev={p} suffix="%" />}
               </div>
               <div className="h-2 rounded-full" style={{ background: "var(--color-border)" }}>
                 <div className="h-2 rounded-full transition-all" style={{ width: `${value}%`, background: color }} />
