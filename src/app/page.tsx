@@ -46,18 +46,17 @@ function DeltaBadge({ curr, prev, suffix = "" }: { curr: number; prev: number; s
 /* ─── KPI Card ──────────────────────────────────────────────────────── */
 
 function KpiCard({
-  label, value, prev, prevLabel, icon, format,
+  label, value, prev, icon, format,
 }: {
   label: string;
   value: number;
   prev?: number;
-  prevLabel?: string;
   icon: React.ReactNode;
   format: (v: number) => string;
 }) {
   return (
     <div
-      className="p-5 flex flex-col gap-3"
+      className="p-4 flex flex-col gap-2"
       style={{
         background: "var(--color-surface)",
         border: "1px solid var(--color-border)",
@@ -69,19 +68,15 @@ function KpiCard({
         <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--color-label)" }}>
           {label}
         </span>
-        <span style={{ color: "var(--color-muted)" }}>{icon}</span>
+        <span style={{ color: "var(--color-border)" }}>{icon}</span>
       </div>
-      <div>
-        <p className="text-3xl font-bold leading-none mb-2">{format(value)}</p>
-        {prev !== undefined && (
-          <div className="flex items-center gap-2">
-            <DeltaBadge curr={value} prev={prev} suffix="%" />
-            <span className="text-xs" style={{ color: "var(--color-muted)" }}>
-              vs {prevLabel}: {format(prev)}
-            </span>
-          </div>
-        )}
-      </div>
+      <p className="text-2xl font-bold leading-none">{format(value)}</p>
+      {prev !== undefined && (
+        <div className="flex items-center gap-1.5">
+          <DeltaBadge curr={value} prev={prev} suffix="%" />
+          <span className="text-xs" style={{ color: "var(--color-label)" }}>{format(prev)}</span>
+        </div>
+      )}
     </div>
   );
 }
@@ -170,7 +165,7 @@ export default function Dashboard() {
             label="Omsetning"
             value={current.omsetning}
             prev={prev?.omsetning}
-            prevLabel={prevMonthLabel}
+
             icon={<Building2 size={16} />}
             format={formatNOK}
           />
@@ -178,7 +173,7 @@ export default function Dashboard() {
             label="Beleggsprosent"
             value={current.beleggPct}
             prev={prev?.beleggPct}
-            prevLabel={prevMonthLabel}
+
             icon={<BedDouble size={16} />}
             format={(v) => `${v}%`}
           />
@@ -186,7 +181,7 @@ export default function Dashboard() {
             label="Snittspris / rom"
             value={current.snittPris}
             prev={prev?.snittPris}
-            prevLabel={prevMonthLabel}
+
             icon={<TrendingUp size={16} />}
             format={(v) => `${new Intl.NumberFormat("nb-NO").format(v)} kr`}
           />
@@ -194,7 +189,7 @@ export default function Dashboard() {
             label="Ansatte"
             value={current.ansatte}
             prev={prev?.ansatte}
-            prevLabel={prevMonthLabel}
+
             icon={<Users size={16} />}
             format={(v) => String(v)}
           />
