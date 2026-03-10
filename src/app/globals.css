@@ -3,9 +3,9 @@
 /* ─── Design Tokens ─────────────────────────────────────────────────────── */
 :root {
   /* Surfaces */
-  --color-bg:        #ece8e2;   /* warm parchment page background */
-  --color-surface:   #faf8f5;   /* card / panel background */
-  --color-border:    #dedad2;   /* subtle border */
+  --color-bg:        #e8e0d5;   /* warm parchment page background */
+  --color-surface:   #f7f4ef;   /* card / panel background */
+  --color-border:    #d9d2c5;   /* subtle border */
 
   /* Text */
   --color-text:      #1a1a1a;   /* primary */
