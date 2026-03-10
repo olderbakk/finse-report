@@ -198,12 +198,12 @@ export default function Dashboard() {
         {/* ── Cost metrics ─────────────────────────────────────────────── */}
         <div className="grid grid-cols-2 gap-4">
           {[
-            { label: "Lønnskostnad", value: current.lonnskostnadPct, prev: prev?.lonnskostnadPct, color: "var(--color-mind)" },
-            { label: "Varekostnad", value: current.varekostnadPct, prev: prev?.varekostnadPct, color: "var(--color-soul)" },
+            { label: "Lønnskostnad % av omsetning", value: current.lonnskostnadPct, prev: prev?.lonnskostnadPct, color: "var(--color-mind)" },
+            { label: "Varekostnad % av omsetning", value: current.varekostnadPct, prev: prev?.varekostnadPct, color: "var(--color-soul)" },
           ].map(({ label, value, prev: p, color }) => (
             <div
               key={label}
-              className="p-5"
+              className="px-4 py-3 flex items-center gap-4"
               style={{
                 background: "var(--color-surface)",
                 border: "1px solid var(--color-border)",
@@ -211,21 +211,23 @@ export default function Dashboard() {
                 boxShadow: "var(--shadow-card)",
               }}
             >
-              <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "var(--color-label)" }}>
-                {label} % av omsetning
-              </p>
-              <div className="flex items-end justify-between mb-3">
-                <span className="text-3xl font-bold">{value}%</span>
-                {p !== undefined && <DeltaBadge curr={value} prev={p} suffix="%" />}
-              </div>
-              <div className="h-2 rounded-full" style={{ background: "var(--color-border)" }}>
-                <div className="h-2 rounded-full transition-all" style={{ width: `${value}%`, background: color }} />
-              </div>
-              {p !== undefined && (
-                <p className="text-xs mt-2" style={{ color: "var(--color-muted)" }}>
-                  Fjoråret: {p}%
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold uppercase tracking-widest mb-1.5" style={{ color: "var(--color-label)" }}>
+                  {label}
                 </p>
-              )}
+                <div className="h-1.5 rounded-full mb-1" style={{ background: "var(--color-border)" }}>
+                  <div className="h-1.5 rounded-full" style={{ width: `${value}%`, background: color }} />
+                </div>
+                {p !== undefined && (
+                  <p className="text-xs" style={{ color: "var(--color-muted)" }}>Fjoråret: {p}%</p>
+                )}
+              </div>
+              <div className="text-right shrink-0">
+                <span className="text-2xl font-bold">{value}%</span>
+                {p !== undefined && (
+                  <div className="mt-0.5"><DeltaBadge curr={value} prev={p} suffix="%" /></div>
+                )}
+              </div>
             </div>
           ))}
         </div>
