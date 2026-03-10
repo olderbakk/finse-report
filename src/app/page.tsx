@@ -74,7 +74,7 @@ function KpiCard({
       {prev !== undefined && (
         <div className="flex items-center gap-1.5">
           <DeltaBadge curr={value} prev={prev} suffix="%" />
-          <span className="text-xs" style={{ color: "var(--color-label)" }}>{format(prev)}</span>
+          <span className="text-xs" style={{ color: "var(--color-label)" }}>{format(prev)} <span style={{ color: "var(--color-border)" }}>fjorår</span></span>
         </div>
       )}
     </div>
