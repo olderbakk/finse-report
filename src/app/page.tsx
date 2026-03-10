@@ -141,28 +141,6 @@ export default function Dashboard() {
 
   return (
     <div style={{ background: "var(--color-bg)", minHeight: "100vh" }}>
-      {/* ── Nav ──────────────────────────────────────────────────────── */}
-      <header
-        className="px-8 py-3 flex items-center justify-between sticky top-0 z-10"
-        style={{ background: "var(--color-surface)", borderBottom: "1px solid var(--color-border)" }}
-      >
-        <nav className="flex items-center gap-1">
-          <span
-            className="text-sm px-3 py-1.5 rounded-md font-medium"
-            style={{ background: "var(--color-bg)", color: "var(--color-text)" }}
-          >
-            Dashboard
-          </span>
-          <Link
-            href="/input"
-            className="text-sm px-3 py-1.5 rounded-md transition-opacity hover:opacity-70"
-            style={{ color: "var(--color-muted)" }}
-          >
-            Legg inn data
-          </Link>
-        </nav>
-      </header>
-
       {/* ── Plus button (fixed) ──────────────────────────────────────── */}
       <Link
         href="/input"
@@ -183,19 +161,26 @@ export default function Dashboard() {
             </p>
             <h1 className="text-2xl font-bold">{monthLabel}</h1>
           </div>
-          <div className="flex gap-1.5 flex-wrap">
+          {/* Segmented control */}
+          <div
+            className="flex p-1 gap-0.5"
+            style={{
+              background: "var(--color-border)",
+              borderRadius: "var(--radius-lg)",
+            }}
+          >
             {AVAILABLE.map(({ year, month }) => {
               const active = selected.year === year && selected.month === month;
               return (
                 <button
                   key={`${year}-${month}`}
                   onClick={() => setSelected({ year, month })}
-                  className="text-sm px-3 py-1.5 font-medium transition-all"
+                  className="text-sm px-4 py-1.5 font-medium transition-all"
                   style={{
-                    borderRadius: "var(--radius-pill)",
-                    ...(active
-                      ? { background: "var(--color-btn-primary)", color: "var(--color-btn-primary-fg)" }
-                      : { border: "1px solid var(--color-border)", color: "var(--color-text)", background: "transparent" }),
+                    borderRadius: "var(--radius-md)",
+                    background: active ? "var(--color-surface)" : "transparent",
+                    color: active ? "var(--color-text)" : "var(--color-muted)",
+                    boxShadow: active ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
                   }}
                 >
                   {MONTHS_SHORT[month - 1]} {year}
