@@ -152,15 +152,9 @@ export default function Dashboard() {
       </Link>
 
       <main className="max-w-4xl mx-auto px-6 py-8 space-y-6">
-        {/* ── Logo + title ─────────────────────────────────────────────── */}
-        <div className="flex items-end justify-between flex-wrap gap-4">
-          <div>
-            <Image src="/finse-logo.png" alt="Hotel Finse 1222" height={48} width={200} className="object-contain object-left mb-3" style={{ height: 48, width: "auto" }} />
-            <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: "var(--color-label)" }}>
-              Månedsrapport
-            </p>
-            <h1 className="text-2xl font-bold">{monthLabel}</h1>
-          </div>
+        {/* ── Logo ─────────────────────────────────────────────────────── */}
+        <div className="flex flex-col items-center gap-5 pt-2">
+          <Image src="/finse-logo.png" alt="Hotel Finse 1222" height={56} width={240} className="object-contain" style={{ height: 56, width: "auto" }} />
           {/* Segmented control */}
           <div
             className="flex p-1 gap-0.5"
@@ -346,7 +340,7 @@ export default function Dashboard() {
           <p className="text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: "var(--color-label)" }}>
             Hittil i år — {selected.year}
           </p>
-          <div className="grid grid-cols-2 gap-6 sm:grid-cols-4">
+          <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 mb-0">
             {[
               {
                 label: "Belegg HTI",
@@ -357,11 +351,6 @@ export default function Dashboard() {
                 label: "Snittspris HTI",
                 value: `${new Intl.NumberFormat("nb-NO").format(current.snittPrisAar)} kr`,
                 prev: prev ? `${new Intl.NumberFormat("nb-NO").format(prev.snittPrisAar)} kr` : undefined,
-              },
-              {
-                label: "Bekreftet salg",
-                value: formatNOK(current.bekreftedeSalg.reduce<number>((s, v) => s + (v ?? 0), 0)),
-                prev: undefined,
               },
               {
                 label: "Ubesatte stillinger",
@@ -377,6 +366,53 @@ export default function Dashboard() {
             ))}
           </div>
         </div>
+
+        {/* ── Bekreftet salg chart ─────────────────────────────────────── */}
+        {(() => {
+          // Use the latest available report per year to get the fullest bekreftedeSalg array
+          const thisYearReports = reports.filter((r) => r.year === selected.year);
+          const prevYearReports = reports.filter((r) => r.year === compareYear);
+          const latestThis = thisYearReports.sort((a, b) => b.month - a.month)[0];
+          const latestPrev = prevYearReports.sort((a, b) => b.month - a.month)[0];
+
+          const salesChart = MONTHS_SHORT.map((m, i) => ({
+            name: m,
+            [selected.year]: latestThis?.bekreftedeSalg[i] ?? null,
+            [compareYear]: latestPrev?.bekreftedeSalg[i] ?? null,
+          }));
+
+          const hasData = salesChart.some((d) => d[selected.year] || d[compareYear]);
+          if (!hasData) return null;
+
+          return (
+            <ChartCard
+              title="Bekreftet salg"
+              legend={[
+                { label: String(selected.year), color: "#4a7fc1", type: "bar" },
+                { label: String(compareYear), color: "#d4cfc8", type: "bar" },
+              ]}
+            >
+              <ResponsiveContainer width="100%" height={200}>
+                <BarChart data={salesChart} barCategoryGap="35%" barGap={2}>
+                  <CartesianGrid vertical={false} stroke="var(--color-border)" strokeDasharray="3 3" />
+                  <XAxis dataKey="name" tick={{ fontSize: 10, fill: "var(--color-muted)" }} axisLine={false} tickLine={false} />
+                  <YAxis
+                    tick={{ fontSize: 10, fill: "var(--color-muted)" }}
+                    axisLine={false} tickLine={false} width={42}
+                    tickFormatter={(v) => v >= 1_000_000 ? `${(v / 1_000_000).toFixed(1)}M` : `${(v / 1000).toFixed(0)}k`}
+                  />
+                  <Tooltip
+                    cursor={{ fill: "var(--color-bg)" }}
+                    formatter={(v, name) => [formatNOKFull(Number(v)), String(name)]}
+                    contentStyle={{ background: "var(--color-surface)", border: "1px solid var(--color-border)", borderRadius: "8px", fontSize: 12, boxShadow: "var(--shadow-card)" }}
+                  />
+                  <Bar dataKey={String(selected.year)} name={String(selected.year)} fill="#4a7fc1" radius={[3, 3, 0, 0]} maxBarSize={28} />
+                  <Bar dataKey={String(compareYear)} name={String(compareYear)} fill="#d4cfc8" radius={[3, 3, 0, 0]} maxBarSize={28} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartCard>
+          );
+        })()}
 
         {/* ── Staffing ─────────────────────────────────────────────────── */}
         <div
