@@ -9,7 +9,7 @@ import {
 } from "recharts";
 import {
   TrendingUp, TrendingDown, Minus, Users, Building2,
-  BedDouble, ArrowRight, PenLine,
+  BedDouble, ArrowRight, PenLine, Plus,
 } from "lucide-react";
 import {
   loadReports, MONTHS, MONTHS_SHORT,
@@ -146,42 +146,38 @@ export default function Dashboard() {
         className="px-8 py-3 flex items-center justify-between sticky top-0 z-10"
         style={{ background: "var(--color-surface)", borderBottom: "1px solid var(--color-border)" }}
       >
-        <div className="flex items-center gap-6">
-          <Image src="/finse-logo.png" alt="Hotel Finse 1222" height={28} width={120} className="object-contain object-left" style={{ height: 28, width: "auto" }} />
-          <nav className="flex items-center gap-1">
-            <span
-              className="text-sm px-3 py-1.5 rounded-md font-medium"
-              style={{ background: "var(--color-bg)", color: "var(--color-text)" }}
-            >
-              Dashboard
-            </span>
-            <Link
-              href="/input"
-              className="text-sm px-3 py-1.5 rounded-md transition-colors"
-              style={{ color: "var(--color-muted)" }}
-            >
-              Legg inn data
-            </Link>
-          </nav>
-        </div>
-        <Link
-          href={`/input?year=${selected.year}&month=${selected.month}`}
-          className="flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-md font-medium transition-opacity hover:opacity-70"
-          style={{
-            background: "var(--color-btn-primary)",
-            color: "var(--color-btn-primary-fg)",
-            borderRadius: "var(--radius-md)",
-          }}
-        >
-          <PenLine size={13} />
-          Rediger
-        </Link>
+        <nav className="flex items-center gap-1">
+          <span
+            className="text-sm px-3 py-1.5 rounded-md font-medium"
+            style={{ background: "var(--color-bg)", color: "var(--color-text)" }}
+          >
+            Dashboard
+          </span>
+          <Link
+            href="/input"
+            className="text-sm px-3 py-1.5 rounded-md transition-opacity hover:opacity-70"
+            style={{ color: "var(--color-muted)" }}
+          >
+            Legg inn data
+          </Link>
+        </nav>
       </header>
 
+      {/* ── Plus button (fixed) ──────────────────────────────────────── */}
+      <Link
+        href="/input"
+        title="Ny månedsrapport"
+        className="fixed bottom-6 right-6 z-20 flex items-center justify-center w-12 h-12 rounded-full shadow-lg transition-opacity hover:opacity-80"
+        style={{ background: "var(--color-btn-primary)", color: "var(--color-btn-primary-fg)" }}
+      >
+        <Plus size={20} strokeWidth={2.5} />
+      </Link>
+
       <main className="max-w-4xl mx-auto px-6 py-8 space-y-6">
-        {/* ── Title + month selector ──────────────────────────────────── */}
+        {/* ── Logo + title ─────────────────────────────────────────────── */}
         <div className="flex items-end justify-between flex-wrap gap-4">
           <div>
+            <Image src="/finse-logo.png" alt="Hotel Finse 1222" height={48} width={200} className="object-contain object-left mb-3" style={{ height: 48, width: "auto" }} />
             <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: "var(--color-label)" }}>
               Månedsrapport
             </p>
