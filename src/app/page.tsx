@@ -88,15 +88,10 @@ function KpiCard({
 
 /* ─── Page ───────────────────────────────────────────────────────────── */
 
-const AVAILABLE = [
-  { year: 2026, month: 3 },
-  { year: 2026, month: 2 },
-  { year: 2026, month: 1 },
-];
-
 export default function Dashboard() {
   const [reports, setReports] = useState<MonthReport[]>([]);
-  const [selected, setSelected] = useState<{ year: number; month: number }>({ year: 2026, month: 3 });
+  const [selectedYear, setSelectedYear] = useState(2026);
+  const [selected, setSelected] = useState<{ year: number; month: number }>({ year: 2026, month: 1 });
 
   useEffect(() => {
     setReports(loadReports());
@@ -152,32 +147,64 @@ export default function Dashboard() {
       </Link>
 
       <main className="max-w-4xl mx-auto px-6 py-8 space-y-6">
-        {/* ── Logo ─────────────────────────────────────────────────────── */}
-        <div className="flex flex-col items-center gap-5 pt-2">
+        {/* ── Logo + selectors ─────────────────────────────────────────── */}
+        <div className="flex flex-col items-center gap-4 pt-2">
           <Image src="/finse-logo.png" alt="Hotel Finse 1222" height={56} width={240} className="object-contain" style={{ height: 56, width: "auto" }} />
-          {/* Segmented control */}
+
+          {/* Year switcher */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => {
+                const y = selectedYear - 1;
+                setSelectedYear(y);
+                const latest = reports.filter((r) => r.year === y).sort((a, b) => b.month - a.month)[0];
+                if (latest) setSelected({ year: y, month: latest.month });
+              }}
+              className="w-7 h-7 flex items-center justify-center rounded-full transition-opacity hover:opacity-60"
+              style={{ background: "var(--color-border)", color: "var(--color-muted)" }}
+            >
+              ‹
+            </button>
+            <span className="text-sm font-semibold w-10 text-center">{selectedYear}</span>
+            <button
+              onClick={() => {
+                const y = selectedYear + 1;
+                setSelectedYear(y);
+                const latest = reports.filter((r) => r.year === y).sort((a, b) => b.month - a.month)[0];
+                if (latest) setSelected({ year: y, month: latest.month });
+              }}
+              className="w-7 h-7 flex items-center justify-center rounded-full transition-opacity hover:opacity-60"
+              style={{ background: "var(--color-border)", color: "var(--color-muted)" }}
+            >
+              ›
+            </button>
+          </div>
+
+          {/* Month segmented control — all 12, inactive if no data */}
           <div
             className="flex p-1 gap-0.5"
-            style={{
-              background: "var(--color-border)",
-              borderRadius: "var(--radius-lg)",
-            }}
+            style={{ background: "var(--color-border)", borderRadius: "var(--radius-lg)" }}
           >
-            {AVAILABLE.map(({ year, month }) => {
-              const active = selected.year === year && selected.month === month;
+            {MONTHS_SHORT.map((m, i) => {
+              const monthNum = i + 1;
+              const hasData = reports.some((r) => r.year === selectedYear && r.month === monthNum);
+              const active = selected.year === selectedYear && selected.month === monthNum;
               return (
                 <button
-                  key={`${year}-${month}`}
-                  onClick={() => setSelected({ year, month })}
-                  className="text-sm px-4 py-1.5 font-medium transition-all"
+                  key={m}
+                  disabled={!hasData}
+                  onClick={() => hasData && setSelected({ year: selectedYear, month: monthNum })}
+                  className="text-xs px-2.5 py-1.5 font-medium transition-all"
                   style={{
                     borderRadius: "var(--radius-md)",
                     background: active ? "var(--color-surface)" : "transparent",
-                    color: active ? "var(--color-text)" : "var(--color-muted)",
+                    color: active ? "var(--color-text)" : hasData ? "var(--color-muted)" : "var(--color-border)",
                     boxShadow: active ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
+                    cursor: hasData ? "pointer" : "default",
+                    minWidth: 36,
                   }}
                 >
-                  {MONTHS_SHORT[month - 1]} {year}
+                  {m}
                 </button>
               );
             })}
@@ -261,7 +288,7 @@ export default function Dashboard() {
           <ChartCard
             title="Omsetning"
             legend={[
-              { label: String(selected.year), color: "#4a7fc1", type: "bar" },
+              { label: String(selected.year), color: "#5c3d2e", type: "bar" },
               { label: String(compareYear), color: "#d4cfc8", type: "bar" },
             ]}
           >
@@ -279,7 +306,7 @@ export default function Dashboard() {
                   formatter={(v, name) => [formatNOKFull(Number(v)), String(name)]}
                   contentStyle={{ background: "var(--color-surface)", border: "1px solid var(--color-border)", borderRadius: "8px", fontSize: 12, boxShadow: "var(--shadow-card)" }}
                 />
-                <Bar dataKey={String(selected.year)} name={String(selected.year)} fill="#4a7fc1" radius={[3, 3, 0, 0]} maxBarSize={28} />
+                <Bar dataKey={String(selected.year)} name={String(selected.year)} fill="#5c3d2e" radius={[3, 3, 0, 0]} maxBarSize={28} />
                 <Bar dataKey={String(compareYear)} name={String(compareYear)} fill="#d4cfc8" radius={[3, 3, 0, 0]} maxBarSize={28} />
               </BarChart>
             </ResponsiveContainer>
@@ -289,7 +316,7 @@ export default function Dashboard() {
           <ChartCard
             title="Beleggsprosent"
             legend={[
-              { label: String(selected.year), color: "#4a7fc1", type: "line" },
+              { label: String(selected.year), color: "#5c3d2e", type: "line" },
               { label: String(compareYear), color: "#b0a89e", type: "line-dashed" },
             ]}
           >
@@ -310,9 +337,9 @@ export default function Dashboard() {
                 />
                 <Line
                   type="monotone" dataKey={String(selected.year)} name={String(selected.year)}
-                  stroke="#4a7fc1" strokeWidth={2.5}
-                  dot={{ r: 3, fill: "#4a7fc1", strokeWidth: 0 }}
-                  activeDot={{ r: 5, fill: "#4a7fc1", strokeWidth: 0 }}
+                  stroke="#5c3d2e" strokeWidth={2.5}
+                  dot={{ r: 3, fill: "#5c3d2e", strokeWidth: 0 }}
+                  activeDot={{ r: 5, fill: "#5c3d2e", strokeWidth: 0 }}
                   connectNulls={false}
                 />
                 <Line
@@ -388,7 +415,7 @@ export default function Dashboard() {
             <ChartCard
               title="Bekreftet salg"
               legend={[
-                { label: String(selected.year), color: "#4a7fc1", type: "bar" },
+                { label: String(selected.year), color: "#5c3d2e", type: "bar" },
                 { label: String(compareYear), color: "#d4cfc8", type: "bar" },
               ]}
             >
@@ -406,7 +433,7 @@ export default function Dashboard() {
                     formatter={(v, name) => [formatNOKFull(Number(v)), String(name)]}
                     contentStyle={{ background: "var(--color-surface)", border: "1px solid var(--color-border)", borderRadius: "8px", fontSize: 12, boxShadow: "var(--shadow-card)" }}
                   />
-                  <Bar dataKey={String(selected.year)} name={String(selected.year)} fill="#4a7fc1" radius={[3, 3, 0, 0]} maxBarSize={28} />
+                  <Bar dataKey={String(selected.year)} name={String(selected.year)} fill="#5c3d2e" radius={[3, 3, 0, 0]} maxBarSize={28} />
                   <Bar dataKey={String(compareYear)} name={String(compareYear)} fill="#d4cfc8" radius={[3, 3, 0, 0]} maxBarSize={28} />
                 </BarChart>
               </ResponsiveContainer>
