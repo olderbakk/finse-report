@@ -396,21 +396,7 @@ export default function Dashboard() {
           <CommentCard title="Eventuelt" text={current.misc} />
         )}
 
-        {/* ── Footer CTA ───────────────────────────────────────────────── */}
-        <div className="flex justify-end pb-8">
-          <Link
-            href={`/input?year=${selected.year}&month=${selected.month}`}
-            className="flex items-center gap-2 text-sm px-4 py-2 font-medium transition-opacity hover:opacity-70"
-            style={{
-              border: "1px solid var(--color-border)",
-              background: "var(--color-surface)",
-              color: "var(--color-text)",
-              borderRadius: "var(--radius-md)",
-            }}
-          >
-            Oppdater rapport <ArrowRight size={14} />
-          </Link>
-        </div>
+        <div className="pb-8" />
       </main>
     </div>
   );
