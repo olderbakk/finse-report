@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -9,7 +9,7 @@ import {
 } from "recharts";
 import {
   TrendingUp, TrendingDown, Minus, Users, Building2,
-  BedDouble, ArrowRight, PenLine, Plus,
+  BedDouble, ArrowRight, Plus, ChevronDown, ChevronLeft, ChevronRight,
 } from "lucide-react";
 import {
   loadReports, MONTHS, MONTHS_SHORT,
@@ -147,68 +147,16 @@ export default function Dashboard() {
       </Link>
 
       <main className="max-w-4xl mx-auto px-6 py-8 space-y-6">
-        {/* ── Logo + selectors ─────────────────────────────────────────── */}
-        <div className="flex flex-col items-center gap-4 pt-2">
+        {/* ── Logo + period picker ──────────────────────────────────────── */}
+        <div className="flex flex-col items-center gap-5 pt-2">
           <Image src="/finse-logo.png" alt="Hotel Finse 1222" height={56} width={240} className="object-contain" style={{ height: 56, width: "auto" }} />
-
-          {/* Year switcher */}
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => {
-                const y = selectedYear - 1;
-                setSelectedYear(y);
-                const latest = reports.filter((r) => r.year === y).sort((a, b) => b.month - a.month)[0];
-                if (latest) setSelected({ year: y, month: latest.month });
-              }}
-              className="w-7 h-7 flex items-center justify-center rounded-full transition-opacity hover:opacity-60"
-              style={{ background: "var(--color-border)", color: "var(--color-muted)" }}
-            >
-              ‹
-            </button>
-            <span className="text-sm font-semibold w-10 text-center">{selectedYear}</span>
-            <button
-              onClick={() => {
-                const y = selectedYear + 1;
-                setSelectedYear(y);
-                const latest = reports.filter((r) => r.year === y).sort((a, b) => b.month - a.month)[0];
-                if (latest) setSelected({ year: y, month: latest.month });
-              }}
-              className="w-7 h-7 flex items-center justify-center rounded-full transition-opacity hover:opacity-60"
-              style={{ background: "var(--color-border)", color: "var(--color-muted)" }}
-            >
-              ›
-            </button>
-          </div>
-
-          {/* Month segmented control — all 12, inactive if no data */}
-          <div
-            className="flex p-1 gap-0.5"
-            style={{ background: "var(--color-border)", borderRadius: "var(--radius-lg)" }}
-          >
-            {MONTHS_SHORT.map((m, i) => {
-              const monthNum = i + 1;
-              const hasData = reports.some((r) => r.year === selectedYear && r.month === monthNum);
-              const active = selected.year === selectedYear && selected.month === monthNum;
-              return (
-                <button
-                  key={m}
-                  disabled={!hasData}
-                  onClick={() => hasData && setSelected({ year: selectedYear, month: monthNum })}
-                  className="text-xs px-2.5 py-1.5 font-medium transition-all"
-                  style={{
-                    borderRadius: "var(--radius-md)",
-                    background: active ? "var(--color-surface)" : "transparent",
-                    color: active ? "var(--color-text)" : hasData ? "var(--color-muted)" : "var(--color-border)",
-                    boxShadow: active ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
-                    cursor: hasData ? "pointer" : "default",
-                    minWidth: 36,
-                  }}
-                >
-                  {m}
-                </button>
-              );
-            })}
-          </div>
+          <PeriodPicker
+            reports={reports}
+            selected={selected}
+            selectedYear={selectedYear}
+            onSelect={(year, month) => { setSelected({ year, month }); setSelectedYear(year); }}
+            onYearChange={(y) => setSelectedYear(y)}
+          />
         </div>
 
         {/* ── KPI row ──────────────────────────────────────────────────── */}
@@ -508,6 +456,111 @@ export default function Dashboard() {
           </Link>
         </div>
       </main>
+    </div>
+  );
+}
+
+/* ─── Period Picker ─────────────────────────────────────────────────── */
+
+function PeriodPicker({
+  reports, selected, selectedYear, onSelect, onYearChange,
+}: {
+  reports: MonthReport[];
+  selected: { year: number; month: number };
+  selectedYear: number;
+  onSelect: (year: number, month: number) => void;
+  onYearChange: (y: number) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handler(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const availableYears = [...new Set(reports.map((r) => r.year))].sort();
+
+  return (
+    <div ref={ref} className="relative flex justify-center">
+      {/* Trigger */}
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="flex items-center gap-2 px-4 py-2 text-sm font-medium transition-all"
+        style={{
+          background: "var(--color-surface)",
+          border: "1px solid var(--color-border)",
+          borderRadius: "var(--radius-pill)",
+          boxShadow: "var(--shadow-card)",
+          color: "var(--color-text)",
+        }}
+      >
+        {MONTHS[selected.month - 1]} {selected.year}
+        <ChevronDown size={14} style={{ color: "var(--color-muted)", transform: open ? "rotate(180deg)" : "none", transition: "transform 0.15s" }} />
+      </button>
+
+      {/* Dropdown */}
+      {open && (
+        <div
+          className="absolute top-full mt-2 z-30 p-3"
+          style={{
+            background: "var(--color-surface)",
+            border: "1px solid var(--color-border)",
+            borderRadius: "var(--radius-lg)",
+            boxShadow: "0 8px 24px rgba(0,0,0,0.10)",
+            minWidth: 240,
+          }}
+        >
+          {/* Year nav */}
+          <div className="flex items-center justify-between mb-3 px-1">
+            <button
+              onClick={() => onYearChange(selectedYear - 1)}
+              disabled={!availableYears.includes(selectedYear - 1)}
+              className="w-7 h-7 flex items-center justify-center rounded-full transition-opacity hover:opacity-60 disabled:opacity-20"
+              style={{ background: "var(--color-bg)" }}
+            >
+              <ChevronLeft size={14} style={{ color: "var(--color-muted)" }} />
+            </button>
+            <span className="text-sm font-semibold">{selectedYear}</span>
+            <button
+              onClick={() => onYearChange(selectedYear + 1)}
+              disabled={!availableYears.includes(selectedYear + 1)}
+              className="w-7 h-7 flex items-center justify-center rounded-full transition-opacity hover:opacity-60 disabled:opacity-20"
+              style={{ background: "var(--color-bg)" }}
+            >
+              <ChevronRight size={14} style={{ color: "var(--color-muted)" }} />
+            </button>
+          </div>
+
+          {/* Month grid — 4 columns × 3 rows */}
+          <div className="grid grid-cols-4 gap-1">
+            {MONTHS_SHORT.map((m, i) => {
+              const monthNum = i + 1;
+              const hasData = reports.some((r) => r.year === selectedYear && r.month === monthNum);
+              const active = selected.year === selectedYear && selected.month === monthNum;
+              return (
+                <button
+                  key={m}
+                  disabled={!hasData}
+                  onClick={() => { onSelect(selectedYear, monthNum); setOpen(false); }}
+                  className="py-1.5 text-xs font-medium rounded-md transition-all"
+                  style={{
+                    background: active ? "var(--color-text)" : "transparent",
+                    color: active ? "#fff" : hasData ? "var(--color-text)" : "var(--color-border)",
+                    cursor: hasData ? "pointer" : "default",
+                    borderRadius: "var(--radius-md)",
+                  }}
+                >
+                  {m}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
