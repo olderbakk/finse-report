@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ChefHat, CalendarDays, TrendingUp, StickyNote, ChevronDown, ArrowLeft } from "lucide-react";
@@ -124,7 +125,7 @@ function InputForm() {
             <ArrowLeft size={14} /> Dashboard
           </Link>
           <span style={{ color: "var(--color-border)" }}>|</span>
-          <span className="text-base font-semibold">Hotel Finse 1222</span>
+          <Image src="/finse-logo.png" alt="Hotel Finse 1222" height={24} width={100} className="object-contain object-left" style={{ height: 24, width: "auto" }} />
         </div>
         <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--color-label)" }}>
           Legg inn data

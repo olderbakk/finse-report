@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import {
   BarChart, Bar, LineChart, Line,
@@ -142,11 +143,11 @@ export default function Dashboard() {
     <div style={{ background: "var(--color-bg)", minHeight: "100vh" }}>
       {/* ── Nav ──────────────────────────────────────────────────────── */}
       <header
-        className="px-8 py-4 flex items-center justify-between sticky top-0 z-10"
+        className="px-8 py-3 flex items-center justify-between sticky top-0 z-10"
         style={{ background: "var(--color-surface)", borderBottom: "1px solid var(--color-border)" }}
       >
         <div className="flex items-center gap-6">
-          <span className="text-base font-semibold tracking-tight">Hotel Finse 1222</span>
+          <Image src="/finse-logo.png" alt="Hotel Finse 1222" height={28} width={120} className="object-contain object-left" style={{ height: 28, width: "auto" }} />
           <nav className="flex items-center gap-1">
             <span
               className="text-sm px-3 py-1.5 rounded-md font-medium"
@@ -282,77 +283,73 @@ export default function Dashboard() {
         {/* ── Charts ───────────────────────────────────────────────────── */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {/* Revenue chart */}
-          <div
-            className="p-5"
-            style={{
-              background: "var(--color-surface)",
-              border: "1px solid var(--color-border)",
-              borderRadius: "var(--radius-lg)",
-              boxShadow: "var(--shadow-card)",
-            }}
+          <ChartCard
+            title="Omsetning"
+            legend={[
+              { label: String(selected.year), color: "#4a7fc1", type: "bar" },
+              { label: String(compareYear), color: "#d4cfc8", type: "bar" },
+            ]}
           >
-            <p className="text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: "var(--color-label)" }}>
-              Omsetning — {selected.year} vs {compareYear}
-            </p>
             <ResponsiveContainer width="100%" height={180}>
               <BarChart data={revenueChart} barCategoryGap="35%" barGap={2}>
-                <CartesianGrid vertical={false} stroke="var(--color-border)" />
+                <CartesianGrid vertical={false} stroke="var(--color-border)" strokeDasharray="3 3" />
                 <XAxis dataKey="name" tick={{ fontSize: 10, fill: "var(--color-muted)" }} axisLine={false} tickLine={false} />
                 <YAxis
                   tick={{ fontSize: 10, fill: "var(--color-muted)" }}
-                  axisLine={false} tickLine={false}
+                  axisLine={false} tickLine={false} width={42}
                   tickFormatter={(v) => v >= 1_000_000 ? `${(v / 1_000_000).toFixed(1)}M` : `${(v / 1000).toFixed(0)}k`}
                 />
                 <Tooltip
-                  formatter={(v) => formatNOKFull(Number(v))}
-                  contentStyle={{ background: "var(--color-surface)", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", fontSize: 12 }}
+                  cursor={{ fill: "var(--color-bg)" }}
+                  formatter={(v, name) => [formatNOKFull(Number(v)), String(name)]}
+                  contentStyle={{ background: "var(--color-surface)", border: "1px solid var(--color-border)", borderRadius: "8px", fontSize: 12, boxShadow: "var(--shadow-card)" }}
                 />
-                <Bar dataKey={selected.year} fill="#4a7fc1" radius={[3, 3, 0, 0]} />
-                <Bar dataKey={compareYear} fill="#d4cfc8" radius={[3, 3, 0, 0]} />
+                <Bar dataKey={String(selected.year)} name={String(selected.year)} fill="#4a7fc1" radius={[3, 3, 0, 0]} maxBarSize={28} />
+                <Bar dataKey={String(compareYear)} name={String(compareYear)} fill="#d4cfc8" radius={[3, 3, 0, 0]} maxBarSize={28} />
               </BarChart>
             </ResponsiveContainer>
-          </div>
+          </ChartCard>
 
           {/* Occupancy chart */}
-          <div
-            className="p-5"
-            style={{
-              background: "var(--color-surface)",
-              border: "1px solid var(--color-border)",
-              borderRadius: "var(--radius-lg)",
-              boxShadow: "var(--shadow-card)",
-            }}
+          <ChartCard
+            title="Beleggsprosent"
+            legend={[
+              { label: String(selected.year), color: "#4a7fc1", type: "line" },
+              { label: String(compareYear), color: "#b0a89e", type: "line-dashed" },
+            ]}
           >
-            <p className="text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: "var(--color-label)" }}>
-              Beleggsprosent — {selected.year} vs {compareYear}
-            </p>
             <ResponsiveContainer width="100%" height={180}>
               <LineChart data={occupancyChart}>
-                <CartesianGrid vertical={false} stroke="var(--color-border)" />
+                <CartesianGrid vertical={false} stroke="var(--color-border)" strokeDasharray="3 3" />
                 <XAxis dataKey="name" tick={{ fontSize: 10, fill: "var(--color-muted)" }} axisLine={false} tickLine={false} />
                 <YAxis
-                  domain={[60, 100]}
+                  domain={[(min: number) => Math.max(0, Math.floor(min / 10) * 10 - 10), (max: number) => Math.ceil(max / 10) * 10 + 5]}
                   tick={{ fontSize: 10, fill: "var(--color-muted)" }}
-                  axisLine={false} tickLine={false}
+                  axisLine={false} tickLine={false} width={34}
                   tickFormatter={(v) => `${v}%`}
                 />
                 <Tooltip
-                  formatter={(v) => `${v}%`}
-                  contentStyle={{ background: "var(--color-surface)", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", fontSize: 12 }}
+                  cursor={{ stroke: "var(--color-border)" }}
+                  formatter={(v, name) => [`${v}%`, String(name)]}
+                  contentStyle={{ background: "var(--color-surface)", border: "1px solid var(--color-border)", borderRadius: "8px", fontSize: 12, boxShadow: "var(--shadow-card)" }}
                 />
                 <Line
-                  type="monotone" dataKey={selected.year}
-                  stroke="#4a7fc1" strokeWidth={2.5} dot={{ r: 3, fill: "#4a7fc1" }}
+                  type="monotone" dataKey={String(selected.year)} name={String(selected.year)}
+                  stroke="#4a7fc1" strokeWidth={2.5}
+                  dot={{ r: 3, fill: "#4a7fc1", strokeWidth: 0 }}
+                  activeDot={{ r: 5, fill: "#4a7fc1", strokeWidth: 0 }}
                   connectNulls={false}
                 />
                 <Line
-                  type="monotone" dataKey={compareYear}
-                  stroke="#d4cfc8" strokeWidth={2} strokeDasharray="4 3"
-                  dot={{ r: 2.5, fill: "#d4cfc8" }} connectNulls={false}
+                  type="monotone" dataKey={String(compareYear)} name={String(compareYear)}
+                  stroke="#b0a89e" strokeWidth={2} strokeDasharray="5 3"
+                  dot={{ r: 2.5, fill: "#b0a89e", strokeWidth: 0 }}
+                  activeDot={{ r: 4, fill: "#b0a89e", strokeWidth: 0 }}
+                  connectNulls={false}
                 />
               </LineChart>
             </ResponsiveContainer>
-          </div>
+          </ChartCard>
         </div>
 
         {/* ── YTD summary ──────────────────────────────────────────────── */}
@@ -467,6 +464,49 @@ export default function Dashboard() {
           </Link>
         </div>
       </main>
+    </div>
+  );
+}
+
+type LegendItem = { label: string; color: string; type: "bar" | "line" | "line-dashed" };
+
+function ChartCard({ title, legend, children }: { title: string; legend: LegendItem[]; children: React.ReactNode }) {
+  return (
+    <div
+      className="p-5"
+      style={{
+        background: "var(--color-surface)",
+        border: "1px solid var(--color-border)",
+        borderRadius: "var(--radius-lg)",
+        boxShadow: "var(--shadow-card)",
+      }}
+    >
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--color-label)" }}>
+          {title}
+        </p>
+        <div className="flex items-center gap-3">
+          {legend.map((item) => (
+            <div key={item.label} className="flex items-center gap-1.5">
+              {item.type === "bar" ? (
+                <span className="w-3 h-3 rounded-sm inline-block" style={{ background: item.color }} />
+              ) : item.type === "line-dashed" ? (
+                <svg width="18" height="10" viewBox="0 0 18 10">
+                  <line x1="0" y1="5" x2="18" y2="5" stroke={item.color} strokeWidth="2" strokeDasharray="4 2" />
+                  <circle cx="9" cy="5" r="2" fill={item.color} />
+                </svg>
+              ) : (
+                <svg width="18" height="10" viewBox="0 0 18 10">
+                  <line x1="0" y1="5" x2="18" y2="5" stroke={item.color} strokeWidth="2.5" />
+                  <circle cx="9" cy="5" r="2.5" fill={item.color} />
+                </svg>
+              )}
+              <span className="text-xs" style={{ color: "var(--color-muted)" }}>{item.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      {children}
     </div>
   );
 }
