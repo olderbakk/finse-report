@@ -159,7 +159,12 @@ export default function Dashboard() {
           />
         </div>
 
-        {/* ── KPI row ──────────────────────────────────────────────────── */}
+        {/* 1 ── Generell status ─────────────────────────────────────────── */}
+        {current.generalComment && (
+          <CommentCard title="Generell status" text={current.generalComment} />
+        )}
+
+        {/* 2 ── Økonomi — KPI row ───────────────────────────────────────── */}
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <KpiCard
             label="Omsetning"
@@ -195,7 +200,7 @@ export default function Dashboard() {
           />
         </div>
 
-        {/* ── Cost metrics ─────────────────────────────────────────────── */}
+        {/* 3 ── Kostnader ───────────────────────────────────────────────── */}
         <div className="grid grid-cols-2 gap-4">
           {[
             { label: "Lønnskostnad % av omsetning", value: current.lonnskostnadPct, prev: prev?.lonnskostnadPct, color: "var(--color-mind)" },
@@ -203,7 +208,7 @@ export default function Dashboard() {
           ].map(({ label, value, prev: p, color }) => (
             <div
               key={label}
-              className="px-4 py-3 flex items-center gap-4"
+              className="px-4 py-4 flex items-center gap-4"
               style={{
                 background: "var(--color-surface)",
                 border: "1px solid var(--color-border)",
@@ -212,10 +217,10 @@ export default function Dashboard() {
               }}
             >
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold uppercase tracking-widest mb-1.5" style={{ color: "var(--color-label)" }}>
+                <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: "var(--color-label)" }}>
                   {label}
                 </p>
-                <div className="h-1.5 rounded-full mb-1" style={{ background: "var(--color-border)" }}>
+                <div className="h-1.5 rounded-full mb-1.5" style={{ background: "var(--color-border)" }}>
                   <div className="h-1.5 rounded-full" style={{ width: `${value}%`, background: color }} />
                 </div>
                 {p !== undefined && (
@@ -225,16 +230,15 @@ export default function Dashboard() {
               <div className="text-right shrink-0">
                 <span className="text-2xl font-bold">{value}%</span>
                 {p !== undefined && (
-                  <div className="mt-0.5"><DeltaBadge curr={value} prev={p} suffix="%" /></div>
+                  <div className="mt-1"><DeltaBadge curr={value} prev={p} suffix="%" /></div>
                 )}
               </div>
             </div>
           ))}
         </div>
 
-        {/* ── Charts ───────────────────────────────────────────────────── */}
+        {/* 4 ── Trendgrafer ─────────────────────────────────────────────── */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {/* Revenue chart */}
           <ChartCard
             title="Omsetning"
             legend={[
@@ -262,7 +266,6 @@ export default function Dashboard() {
             </ResponsiveContainer>
           </ChartCard>
 
-          {/* Occupancy chart */}
           <ChartCard
             title="Beleggsprosent"
             legend={[
@@ -285,26 +288,14 @@ export default function Dashboard() {
                   formatter={(v, name) => [`${v}%`, String(name)]}
                   contentStyle={{ background: "var(--color-surface)", border: "1px solid var(--color-border)", borderRadius: "8px", fontSize: 12, boxShadow: "var(--shadow-card)" }}
                 />
-                <Line
-                  type="monotone" dataKey={String(selected.year)} name={String(selected.year)}
-                  stroke="#5c3d2e" strokeWidth={2.5}
-                  dot={{ r: 3, fill: "#5c3d2e", strokeWidth: 0 }}
-                  activeDot={{ r: 5, fill: "#5c3d2e", strokeWidth: 0 }}
-                  connectNulls={false}
-                />
-                <Line
-                  type="monotone" dataKey={String(compareYear)} name={String(compareYear)}
-                  stroke="#b0a89e" strokeWidth={2} strokeDasharray="5 3"
-                  dot={{ r: 2.5, fill: "#b0a89e", strokeWidth: 0 }}
-                  activeDot={{ r: 4, fill: "#b0a89e", strokeWidth: 0 }}
-                  connectNulls={false}
-                />
+                <Line type="monotone" dataKey={String(selected.year)} name={String(selected.year)} stroke="#5c3d2e" strokeWidth={2.5} dot={{ r: 3, fill: "#5c3d2e", strokeWidth: 0 }} activeDot={{ r: 5, fill: "#5c3d2e", strokeWidth: 0 }} connectNulls={false} />
+                <Line type="monotone" dataKey={String(compareYear)} name={String(compareYear)} stroke="#b0a89e" strokeWidth={2} strokeDasharray="5 3" dot={{ r: 2.5, fill: "#b0a89e", strokeWidth: 0 }} activeDot={{ r: 4, fill: "#b0a89e", strokeWidth: 0 }} connectNulls={false} />
               </LineChart>
             </ResponsiveContainer>
           </ChartCard>
         </div>
 
-        {/* ── YTD summary ──────────────────────────────────────────────── */}
+        {/* 5 ── Hittil i år ─────────────────────────────────────────────── */}
         <div
           className="p-5"
           style={{
@@ -317,23 +308,11 @@ export default function Dashboard() {
           <p className="text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: "var(--color-label)" }}>
             Hittil i år — {selected.year}
           </p>
-          <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 mb-0">
+          <div className="grid grid-cols-2 gap-6 sm:grid-cols-3">
             {[
-              {
-                label: "Belegg HTI",
-                value: `${current.beleggAarPct}%`,
-                prev: prev ? `${prev.beleggAarPct}%` : undefined,
-              },
-              {
-                label: "Snittspris HTI",
-                value: `${new Intl.NumberFormat("nb-NO").format(current.snittPrisAar)} kr`,
-                prev: prev ? `${new Intl.NumberFormat("nb-NO").format(prev.snittPrisAar)} kr` : undefined,
-              },
-              {
-                label: "Ubesatte stillinger",
-                value: String(current.ubesatte),
-                prev: prev ? String(prev.ubesatte) : undefined,
-              },
+              { label: "Beleggsprosent HTI", value: `${current.beleggAarPct}%`, prev: prev ? `${prev.beleggAarPct}%` : undefined },
+              { label: "Gjennomsnittspris HTI", value: `${new Intl.NumberFormat("nb-NO").format(current.snittPrisAar)} kr`, prev: prev ? `${new Intl.NumberFormat("nb-NO").format(prev.snittPrisAar)} kr` : undefined },
+              { label: "Ubesatte stillinger", value: String(current.ubesatte), prev: prev ? String(prev.ubesatte) : undefined },
             ].map(({ label, value, prev: p }) => (
               <div key={label}>
                 <p className="text-xs mb-1" style={{ color: "var(--color-muted)" }}>{label}</p>
@@ -344,23 +323,18 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* ── Bekreftet salg chart ─────────────────────────────────────── */}
+        {/* 6 ── Bekreftet salg ──────────────────────────────────────────── */}
         {(() => {
-          // Use the latest available report per year to get the fullest bekreftedeSalg array
           const thisYearReports = reports.filter((r) => r.year === selected.year);
           const prevYearReports = reports.filter((r) => r.year === compareYear);
           const latestThis = thisYearReports.sort((a, b) => b.month - a.month)[0];
           const latestPrev = prevYearReports.sort((a, b) => b.month - a.month)[0];
-
           const salesChart = MONTHS_SHORT.map((m, i) => ({
             name: m,
             [selected.year]: latestThis?.bekreftedeSalg[i] ?? null,
             [compareYear]: latestPrev?.bekreftedeSalg[i] ?? null,
           }));
-
-          const hasData = salesChart.some((d) => d[selected.year] || d[compareYear]);
-          if (!hasData) return null;
-
+          if (!salesChart.some((d) => d[selected.year] || d[compareYear])) return null;
           return (
             <ChartCard
               title="Bekreftet salg"
@@ -373,16 +347,8 @@ export default function Dashboard() {
                 <BarChart data={salesChart} barCategoryGap="35%" barGap={2}>
                   <CartesianGrid vertical={false} stroke="var(--color-border)" strokeDasharray="3 3" />
                   <XAxis dataKey="name" tick={{ fontSize: 10, fill: "var(--color-muted)" }} axisLine={false} tickLine={false} />
-                  <YAxis
-                    tick={{ fontSize: 10, fill: "var(--color-muted)" }}
-                    axisLine={false} tickLine={false} width={42}
-                    tickFormatter={(v) => v >= 1_000_000 ? `${(v / 1_000_000).toFixed(1)}M` : `${(v / 1000).toFixed(0)}k`}
-                  />
-                  <Tooltip
-                    cursor={{ fill: "var(--color-bg)" }}
-                    formatter={(v, name) => [formatNOKFull(Number(v)), String(name)]}
-                    contentStyle={{ background: "var(--color-surface)", border: "1px solid var(--color-border)", borderRadius: "8px", fontSize: 12, boxShadow: "var(--shadow-card)" }}
-                  />
+                  <YAxis tick={{ fontSize: 10, fill: "var(--color-muted)" }} axisLine={false} tickLine={false} width={42} tickFormatter={(v) => v >= 1_000_000 ? `${(v / 1_000_000).toFixed(1)}M` : `${(v / 1000).toFixed(0)}k`} />
+                  <Tooltip cursor={{ fill: "var(--color-bg)" }} formatter={(v, name) => [formatNOKFull(Number(v)), String(name)]} contentStyle={{ background: "var(--color-surface)", border: "1px solid var(--color-border)", borderRadius: "8px", fontSize: 12, boxShadow: "var(--shadow-card)" }} />
                   <Bar dataKey={String(selected.year)} name={String(selected.year)} fill="#5c3d2e" radius={[3, 3, 0, 0]} maxBarSize={28} />
                   <Bar dataKey={String(compareYear)} name={String(compareYear)} fill="#d4cfc8" radius={[3, 3, 0, 0]} maxBarSize={28} />
                 </BarChart>
@@ -391,7 +357,12 @@ export default function Dashboard() {
           );
         })()}
 
-        {/* ── Staffing ─────────────────────────────────────────────────── */}
+        {/* 7 ── Prognose ────────────────────────────────────────────────── */}
+        {current.prognosisComment && (
+          <CommentCard title="Prognose / markedsforhold" text={current.prognosisComment} />
+        )}
+
+        {/* 8 ── Bemanning ───────────────────────────────────────────────── */}
         <div
           className="p-5"
           style={{
@@ -406,17 +377,15 @@ export default function Dashboard() {
           </p>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
             {[
-              { label: "Ansatte", value: current.ansatte, prev: prev?.ansatte, good: "up" },
-              { label: "Ubesatte stillinger", value: current.ubesatte, prev: prev?.ubesatte, good: "down" },
-              { label: "Oppsigelser", value: current.oppsigelser, prev: prev?.oppsigelser, good: "down" },
-              { label: "Nyansatte", value: current.nyansatte, prev: prev?.nyansatte, good: "up" },
+              { label: "Ansatte", value: current.ansatte, prev: prev?.ansatte },
+              { label: "Ubesatte stillinger", value: current.ubesatte, prev: prev?.ubesatte },
+              { label: "Oppsigelser", value: current.oppsigelser, prev: prev?.oppsigelser },
+              { label: "Nyansatte", value: current.nyansatte, prev: prev?.nyansatte },
             ].map(({ label, value, prev: p }) => (
               <div key={label}>
                 <p className="text-xs mb-1" style={{ color: "var(--color-muted)" }}>{label}</p>
                 <p className="text-2xl font-bold">{value}</p>
-                {p !== undefined && (
-                  <p className="text-xs mt-0.5" style={{ color: "var(--color-label)" }}>Fjoråret: {p}</p>
-                )}
+                {p !== undefined && <p className="text-xs mt-0.5" style={{ color: "var(--color-label)" }}>Fjoråret: {p}</p>}
               </div>
             ))}
           </div>
@@ -427,19 +396,9 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* ── Comments ─────────────────────────────────────────────────── */}
-        {(current.generalComment || current.prognosisComment || current.misc) && (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {current.generalComment && (
-              <CommentCard title="Generell status" text={current.generalComment} />
-            )}
-            {current.prognosisComment && (
-              <CommentCard title="Prognose / markedsforhold" text={current.prognosisComment} />
-            )}
-            {current.misc && (
-              <CommentCard title="Eventuelt" text={current.misc} />
-            )}
-          </div>
+        {/* 9 ── Eventuelt ───────────────────────────────────────────────── */}
+        {current.misc && (
+          <CommentCard title="Eventuelt" text={current.misc} />
         )}
 
         {/* ── Footer CTA ───────────────────────────────────────────────── */}
