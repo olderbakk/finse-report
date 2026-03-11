@@ -225,7 +225,11 @@ export default function Dashboard() {
               <div className="text-right shrink-0">
                 <span className="text-2xl font-bold">{value}%</span>
                 {p !== undefined && (
-                  <div className="mt-1"><DeltaBadge curr={value} prev={p} suffix="%" /></div>
+                  <div className="mt-1">
+                    <span className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full" style={{ background: "var(--color-border)", color: "var(--color-muted)" }}>
+                      {value > p ? "↑" : value < p ? "↓" : "–"} {Math.abs(value - p).toFixed(1).replace(".", ",")}%
+                    </span>
+                  </div>
                 )}
               </div>
             </div>
